@@ -1,0 +1,39 @@
+{{extend 'layout.html'}}
+<script>
+function smartcheck(obj,i) {
+  var t = jQuery(obj);
+  var url;
+  if(t.is(':checked'))
+     url='{{=URL('callback_facility',args=('add'))}}/'+i;
+  else
+     url='{{=URL('callback_facility',args=('del'))}}/'+i;
+  jQuery.ajax(url,{},function(data){
+      if(data=='true') jQuery(this).attr('checked','checked'); 
+      else jQuery(this).removeAttr('checked');
+    });
+};
+</script>
+
+{{=form.custom.begin}}
+<div class="input-prepend input-append">
+  <span class="add-on">Search facilities by name</span>
+  {{=form.custom.widget.name}}
+  <button class="btn" type="button">Search</button>
+</div>
+{{=form.custom.end}}
+{{if facilities:}}
+<p>Check to track</p>
+{{pass}}
+<table>
+  {{for facility in facilities:}}
+  <tr>
+    <td><input type="checkbox" {{if facility.id in auth.user.facilities:}}checked="checked"{{pass}} onclick="smartcheck(this,{{=facility.id}})"/></td>
+    <td>{{=A(facility.name,_href=facility.home_page or URL('facilities','home',args=facility.id))}}</td>
+    <td>{{=facility.address}}</td>
+    <td>{{=facility.city}} {{=facility.state}} {{=facility.zip}}</td>
+</td>
+  </tr>
+  {{pass}}
+</table>
+
+<a class="btn" href="{{=URL('default','main')}}">Done</a>

@@ -1,0 +1,24 @@
+{{extend 'layout.html'}}
+
+<h2>Confirm Resevation</h2>
+
+<table class="table">
+  <tr>
+    <th>Location:</th>
+    <td>{{=slot.location.name}} @ {{=facility.name}}</td>
+  </tr>
+  <tr>
+    <th>From:</th>
+    <td>{{=slot.start_datetime}}</td>
+  </tr>
+  <tr>
+    <th>Until:</th>
+    <td>{{=slot.stop_datetime}}</td>
+  </tr>
+  <tr>
+    <th>Timeslot ID:</th>
+    <td>#{{=slot.id}}</td>    
+  </tr>
+</table>
+
+{{=form if form else "Reservation Request Sent"}}

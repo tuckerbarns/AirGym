@@ -1,0 +1,88 @@
+{{
+response.files.append(URL('static','fullcalendar/fullcalendar.css'))
+# response.files.append(URL('static','fullcalendar/fullcalendar.print.css'))
+response.files.append(URL('static','fullcalendar/jquery-ui-1.8.23.custom.min.js'))
+response.files.append(URL('static','fullcalendar/fullcalendar.min.js'))
+}}{{extend 'layout.html'}}
+
+{{if user.mugshot:}}
+<img src="{{=URL('download',args=user.mugshot)}}" align="right" width="200px"/>
+{{pass}}
+
+<dt>
+  <dl>Location</dl><dd>{{=user.city}} {{=user.state}} {{=user.zip}} ({{=user.country}})</dd>
+</dt>
+
+<dt>
+  <dl>About</dl>
+  <dd>{{=MARKMIN(user.about_you)}}</dd>
+</dt>
+
+<h4>Sports</h4>
+
+{{for activity in activities:}}
+<dt>
+  <dl>
+    {{=activity.sport}} / {{=activity.level}}
+  </dl>
+  <dd>
+    {{=activity.info or ''}}
+  </dd>
+</dt>
+{{pass}}
+
+<h4>Availability</h4>
+
+{{
+from gluon.contrib.simplejson import dumps
+def jsdate(dt):
+   return 'new Date(%i,%i,%i,%i,%i)' % (dt.year, dt.month-1, dt.day, dt.hour, dt.minute)
+def info(avail):
+   return dumps([[x[0],x[1],x[2]] for x in avail if x[2]])
+}}
+
+<script type='text/javascript'>
+  jQuery(function(){
+    function sdate(d) {
+      return ''+d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+' '+d.getHours()+':'+d.getMinutes();
+    } 
+    jQuery('#calendar').fullCalendar({
+      header: {
+        left: 'prev,next today',
+        center: 'title',
+        right: ''
+      },
+      defaultView: 'agendaWeek',
+      allDaySlot: false,
+      slotMinutes: 30,
+      eventClick: function(event) {
+          // ajax('{{=URL('check_friends')}}','','modal-body');
+          // $('#myModal').modal();          
+      },
+      events: [
+{{for k,slot in enumerate(slots):}}{{if k>0:}},
+{{pass}}{id:{{=k}},title:'available',start:{{=jsdate(slot.start_datetime)}},end:{{=jsdate(slot.stop_datetime)}},allDay:false}{{pass}}
+      ]
+    });
+  });
+</script>
+</head>
+<body>
+
+<div id='wrap'>
+<div id='calendar'></div>
+</div>
+
+<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">People Avalable</h3>
+  </div>
+  <div class="modal-body" id="modal-body">
+    <p>Loading...</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    <button class="btn btn-primary">Book</button>
+  </div>
+</div>

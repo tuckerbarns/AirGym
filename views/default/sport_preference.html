@@ -1,0 +1,18 @@
+{{right_sidebar_enabled=True}}
+{{extend 'layout.html'}}
+
+{{=auth.user.full_name}}
+
+<div>
+  <h4>User experience</h4>
+  {{=form.custom.begin}}
+  <table>
+    <tr><td colspan="2">{{=form.custom.widget.level}}</td></tr>
+    <tr><td>{{=form.custom.widget.instructor}} Instructor</td>
+    <td><input type="submit" class="btn btn-small" value="Update" /></td>
+    </tr>
+  </table>  
+  {{=form.custom.end}}  
+  <a class="btn btn-small btn-primary" href="{{=URL('default','availability')}}">Availability</a>
+  <table></table>
+</div>

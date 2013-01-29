@@ -1,0 +1,269 @@
+timestamp: 2012-12-16T22:31:16.597444
+CREATE TABLE auth_user(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name CHAR(128),
+    last_name CHAR(128),
+    email CHAR(512),
+    username CHAR(128),
+    password CHAR(512),
+    registration_key CHAR(512),
+    reset_password_key CHAR(512),
+    registration_id CHAR(512),
+    full_name CHAR(512),
+    year_of_birth INTEGER,
+    address CHAR(512),
+    city CHAR(512),
+    zip CHAR(512),
+    state CHAR(512),
+    country CHAR(512),
+    phone CHAR(512),
+    twitter CHAR(512),
+    facebook CHAR(512),
+    home_page CHAR(512),
+    sports TEXT
+);
+success!
+timestamp: 2012-12-16T22:31:16.601688
+CREATE TABLE auth_group(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    role CHAR(512),
+    description TEXT
+);
+success!
+timestamp: 2012-12-16T22:31:16.604570
+CREATE TABLE auth_membership(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2012-12-16T22:31:16.607521
+CREATE TABLE auth_permission(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE,
+    name CHAR(512),
+    table_name CHAR(512),
+    record_id INTEGER
+);
+success!
+timestamp: 2012-12-16T22:31:16.610338
+CREATE TABLE auth_event(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    time_stamp TIMESTAMP,
+    client_ip CHAR(512),
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    origin CHAR(512),
+    description TEXT
+);
+success!
+timestamp: 2012-12-16T22:31:16.613462
+CREATE TABLE auth_cas(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    created_on TIMESTAMP,
+    service CHAR(512),
+    ticket CHAR(512),
+    renew CHAR(1)
+);
+success!
+timestamp: 2012-12-16T22:31:16.619248
+CREATE TABLE facility(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    owner INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    name CHAR(512) UNIQUE,
+    address CHAR(512),
+    city CHAR(512),
+    zip CHAR(512),
+    state CHAR(512),
+    country CHAR(512),
+    phone CHAR(512),
+    email CHAR(512),
+    home_page CHAR(512)
+);
+success!
+timestamp: 2012-12-16T22:31:16.622415
+CREATE TABLE location(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    facility INTEGER REFERENCES facility (id) ON DELETE CASCADE,
+    sport CHAR(512),
+    name CHAR(512),
+    equipment_rental CHAR(1),
+    hourly_rate DOUBLE,
+    info TEXT,
+    capacity INTEGER
+);
+success!
+timestamp: 2012-12-16T22:31:16.626906
+CREATE TABLE location_availability(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    facility INTEGER REFERENCES facility (id) ON DELETE CASCADE,
+    locations TEXT,
+    open_status CHAR(512),
+    start_date DATE,
+    stop_date DATE,
+    start_time TIME,
+    stop_time TIME,
+    monday CHAR(1),
+    tuesday CHAR(1),
+    wednesday CHAR(1),
+    thursday CHAR(1),
+    friday CHAR(1),
+    saturday CHAR(1),
+    sunday CHAR(1),
+    hourly_rate DOUBLE,
+    activity_duration INTEGER
+);
+success!
+timestamp: 2012-12-16T22:31:16.631259
+CREATE TABLE reservation(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    location INTEGER REFERENCES location (id) ON DELETE CASCADE,
+    start_time TIMESTAMP,
+    stop_time TIMESTAMP,
+    info TEXT,
+    is_active CHAR(1),
+    created_on TIMESTAMP,
+    created_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    modified_on TIMESTAMP,
+    modified_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2012-12-16T22:31:16.638604
+CREATE TABLE activity(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    auth_user INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    sport CHAR(512),
+    level CHAR(512),
+    instructor CHAR(1),
+    hourly_rate DOUBLE,
+    info TEXT,
+    facilities TEXT,
+    companions TEXT
+);
+success!
+timestamp: 2012-12-16T22:31:16.641919
+CREATE TABLE activity_availability(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    activity INTEGER REFERENCES activity (id) ON DELETE CASCADE,
+    available CHAR(1),
+    start_time TIMESTAMP,
+    stop_time TIMESTAMP
+);
+success!
+timestamp: 2012-12-16T23:14:15.516640
+ALTER TABLE reservation ADD start_datetime TIMESTAMP;
+timestamp: 2012-12-16T23:14:15.520116
+ALTER TABLE reservation ADD stop_datetime TIMESTAMP;
+timestamp: 2012-12-16T23:14:15.529677
+ALTER TABLE activity_availability ADD start_datetime TIMESTAMP;
+timestamp: 2012-12-16T23:14:15.531074
+ALTER TABLE activity_availability ADD stop_datetime TIMESTAMP;
+timestamp: 2012-12-17T13:37:31.411310
+CREATE TABLE wiki_page(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug CHAR(512),
+    title CHAR(512) UNIQUE,
+    body TEXT NOT NULL,
+    tags TEXT,
+    can_read TEXT,
+    can_edit TEXT,
+    changelog CHAR(512),
+    html TEXT,
+    is_active CHAR(1),
+    created_on TIMESTAMP,
+    created_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    modified_on TIMESTAMP,
+    modified_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2012-12-17T13:37:31.417361
+CREATE TABLE wiki_tag(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512),
+    wiki_page INTEGER REFERENCES wiki_page (id) ON DELETE CASCADE,
+    is_active CHAR(1),
+    created_on TIMESTAMP,
+    created_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    modified_on TIMESTAMP,
+    modified_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2012-12-17T13:37:31.421829
+CREATE TABLE wiki_media(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    wiki_page INTEGER REFERENCES wiki_page (id) ON DELETE CASCADE,
+    title CHAR(512),
+    filename CHAR(512),
+    is_active CHAR(1),
+    created_on TIMESTAMP,
+    created_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    modified_on TIMESTAMP,
+    modified_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2012-12-17T13:41:47.637646
+ALTER TABLE auth_user ADD facility_owner CHAR(1);
+timestamp: 2012-12-17T14:37:20.802869
+ALTER TABLE auth_user ADD pin CHAR(512);
+timestamp: 2012-12-28T23:20:23.602076
+CREATE TABLE user_availability(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    start_datetime TIMESTAMP,
+    stop_datetime TIMESTAMP
+);
+success!
+timestamp: 2012-12-28T23:34:29.898598
+ALTER TABLE auth_user ADD profile_public CHAR(1);
+timestamp: 2012-12-29T00:04:36.164586
+CREATE TABLE user_facility(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    facility_id INTEGER REFERENCES facility (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2012-12-29T00:29:20.842400
+CREATE TABLE link(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    target INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    accepted CHAR(1)
+);
+success!
+timestamp: 2012-12-29T14:25:45.816786
+ALTER TABLE auth_user ADD mugshot CHAR(512);
+timestamp: 2012-12-29T14:25:46.024002
+CREATE TABLE plugin_social_link(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    target INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    accepted CHAR(1)
+);
+success!
+timestamp: 2012-12-29T15:48:57.501588
+CREATE TABLE timeslot(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    location INTEGER REFERENCES location (id) ON DELETE CASCADE,
+    start_datetime TIMESTAMP,
+    stop_datetime TIMESTAMP,
+    info TEXT,
+    available CHAR(1),
+    reserved_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2012-12-29T15:59:35.974519
+ALTER TABLE auth_user ADD about_you TEXT;
+timestamp: 2012-12-30T15:41:47.646358
+ALTER TABLE timeslot ADD facility INTEGER REFERENCES facility (id) ON DELETE CASCADE;
+timestamp: 2012-12-30T15:45:13.548180
+ALTER TABLE timeslot ADD sport CHAR(512);
+timestamp: 2012-12-30T16:24:43.920300
+ALTER TABLE activity ADD user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE;
+timestamp: 2013-01-13T14:23:44.132753
+ALTER TABLE facility ADD proxy CHAR(1);
+timestamp: 2013-01-13T14:23:44.151795
+ALTER TABLE facility ADD proxy_email CHAR(512);
+timestamp: 2013-01-13T14:23:44.172441
+ALTER TABLE timeslot ADD pending CHAR(1);
+timestamp: 2013-01-13T14:23:44.178479
+ALTER TABLE timeslot ADD confirmation_key CHAR(512);

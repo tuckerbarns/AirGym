@@ -1,0 +1,14 @@
+{{extend 'layout.html'}}
+
+<h2>Reservation</h2>
+
+{{for slot in slots:}}
+<h4>{{=slot.location.name}}</h4>
+<table>
+  <tr><th>From</th><td>{{=slot.timeslot.start_datetime}}</td></tr>
+  <tr><th>To</th><td>{{=slot.timeslot.stop_datetime}}</td></tr>
+  <tr><th>Spaces Available</th><td>{{=slot('spaces')}}</td></tr>
+  <tr><th></th><td><a class="btn" href="{{=URL('reserve_slot',vars=dict(start=slot.timeslot.start_datetime.isoformat().replace('T',' '),location=slot.location.id))}}">Reserve 1 space</a></td></tr>
+</td></tr>
+</table>
+{{pass}}

@@ -1,0 +1,127 @@
+{{
+right_sidebar_enabled=True
+response.files.append(URL('static','fullcalendar/fullcalendar.css'))
+# response.files.append(URL('static','fullcalendar/fullcalendar.print.css'))
+response.files.append(URL('static','fullcalendar/jquery-ui-1.8.23.custom.min.js'))
+response.files.append(URL('static','fullcalendar/fullcalendar.min.js'))
+}}
+{{extend 'layout.html'}}
+
+{{
+def jsdate(dt):
+   return 'new Date(%i,%i,%i,%i,%i)' % (dt.year, dt.month-1, dt.day, dt.hour, dt.minute)
+}}
+
+<script type='text/javascript'>
+
+  jQuery(function() {
+    /* initialize the external events */
+    jQuery('#external-events div.external-event').each(function() {
+      var eventObject = {
+        title: jQuery.trim(jQuery(this).text())
+      };
+      jQuery(this).data('eventObject', eventObject);
+      jQuery(this).draggable({
+        zIndex: 999,
+        revert: true,
+        revertDuration: 0
+      });
+    });
+ 
+    function sdate(d) {
+      return ''+d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+' '+d.getHours()+':'+d.getMinutes();
+    }
+ 
+    jQuery('#calendar').fullCalendar({
+      header: {
+        left: 'prev,next today',
+        center: 'title',
+        right: '',
+      },
+      defaultView: 'agendaWeek',
+      allDaySlot: false,
+      slotMinutes: 30,
+      editable: true,
+      droppable: true, 
+      drop: function(date, allDay) {
+        var originalEventObject = jQuery(this).data('eventObject');
+        var event = jQuery.extend({}, originalEventObject);        
+        var tempDate = new Date(date)
+        var end = new Date(tempDate.setHours(tempDate.getHours()+1));
+        event.title = '';
+        event.start = date;
+        event.end = end;
+        event.allDay = false;
+        jQuery.ajax({type:'POST',url:'{{=URL('default','availability')}}',data:{start:sdate(event.start),end:sdate(event.end)},success:function(data){event.id=parseInt(data);},async:true});
+        jQuery('#calendar').fullCalendar('renderEvent', event, true);
+        if (jQuery('#drop-remove').is(':checked')) { jQuery(this).remove(); }  
+      },
+      eventClick: function(event) {
+        jQuery.post('{{=URL('default','availability')}}',{id:event.id,delete:'true'});
+        jQuery('#calendar').fullCalendar('removeEvents', [event.id]);
+      },
+      eventDrop: function(event) {
+        jQuery.post('{{=URL('default','availability')}}',{id:event.id,start:sdate(event.start),end:sdate(event.end)});
+      },
+      eventResize: function(event) {
+        jQuery.post('{{=URL('default','availability')}}',{id:event.id,start:sdate(event.start),end:sdate(event.end)});
+      },
+      events: [
+{{for k,slot in enumerate(slots):}}{{if k>0:}},
+{{pass}}{id:{{=slot.id}},title:'',start:{{=jsdate(slot.start_datetime)}},end:{{=jsdate(slot.stop_datetime)}},allDay:false}{{pass}}
+      ]
+    });
+  });
+</script>
+<style type='text/css'>
+  
+  #external-events {
+  float: left;
+  width: 150px;
+  padding: 0 10px;
+  border: 1px solid #ccc;
+  background: #eee;
+  text-align: left;
+  }
+  
+  #external-events h4 {
+  font-size: 16px;
+  margin-top: 0;
+  padding-top: 1em;
+  }
+  
+  .external-event { /* try to mimick the look of a real event */
+  margin: 10px 0;
+  padding: 2px 4px;
+  background: #3366CC;
+  color: #fff;
+  font-size: .85em;
+  cursor: pointer;
+  }
+  
+  #external-events p {
+  margin: 1.5em 0;
+  font-size: 11px;
+  color: #666;
+  }
+  
+  #external-events p input {
+  margin: 0;
+  vertical-align: middle;
+  }
+
+</style>
+</head>
+<body>
+
+{{block right_sidebar}}
+<div id='external-events'>
+<h4>Drag and drop</h4>
+<div class='external-event'>Available</div>
+<h4>Click to remove</h4>
+</div>
+{{end}}
+<div id='wrap'>
+<div id='calendar'></div>
+</div>
+

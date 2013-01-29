@@ -1,0 +1,32 @@
+{{extend 'layout.html'}}
+<script>
+function smartcheck(obj,i) {
+  var t = jQuery(obj);
+  var url;
+  if(t.is(':checked'))
+     url='{{=URL('callback_companion',args=('add'))}}/'+i;
+  else
+     url='{{=URL('callback_companion',args=('del'))}}/'+i;
+  jQuery.ajax(url,{},function(data){
+      if(data=='true') jQuery(this).attr('checked','checked'); 
+      else jQuery(this).removeAttr('checked');
+    });
+};
+</script>
+
+{{=form.custom.begin}}
+<div class="input-prepend input-append">
+  <span class="add-on">{{=form.custom.label.name}}</span>
+  {{=form.custom.widget.name}}
+  <button class="btn" type="button">Search</button>
+</div>
+{{=form.custom.end}}
+
+<table>
+  {{for companion in companions:}}
+  <tr>
+    <td><input type="checkbox" {{if companion.id in session.activity.companions:}}checked="checked"{{pass}} onclick="smartcheck(this,{{=companion.id}})"/></td>
+    <td>{{=companion.first_name}} {{=companion.last_name}}</td>
+  </tr>
+  {{pass}}
+</table>
